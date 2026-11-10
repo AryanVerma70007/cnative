@@ -1,0 +1,8 @@
+com\logistics\inventory\InventoryItem.class
+com\logistics\inventory\InventoryController.class
+com\logistics\inventory\SecurityConfig.class
+com\logistics\inventory\InventoryRepository.class
+com\logistics\inventory\InventoryServiceApplication.class
+com\logistics\inventory\JwtTokenService.class
+com\logistics\inventory\JwtAuthenticationFilter.class
+com\logistics\inventory\OrderCreatedConsumer.class

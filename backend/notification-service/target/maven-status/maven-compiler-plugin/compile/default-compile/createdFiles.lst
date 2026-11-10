@@ -1,0 +1,8 @@
+com\logistics\notification\ShipmentEventConsumer.class
+com\logistics\notification\NotificationServiceApplication.class
+com\logistics\notification\SecurityConfig.class
+com\logistics\notification\JwtAuthenticationFilter.class
+com\logistics\notification\JwtTokenService.class
+com\logistics\notification\NotificationController.class
+com\logistics\notification\NotificationRepository.class
+com\logistics\notification\Notification.class

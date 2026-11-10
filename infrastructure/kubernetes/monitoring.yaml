@@ -1,0 +1,172 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: logistics
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    scrape_configs:
+      - job_name: api-gateway
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["api-gateway:8080"]
+      - job_name: order-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["order-service:8082"]
+      - job_name: inventory-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["inventory-service:8083"]
+      - job_name: shipment-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["shipment-service:8084"]
+      - job_name: notification-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ["notification-service:8085"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: logistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: prometheus}
+  template:
+    metadata:
+      labels: {app: prometheus}
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v3.5.0
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+          ports: [{containerPort: 9090}]
+          volumeMounts:
+            - {name: config, mountPath: /etc/prometheus}
+          readinessProbe:
+            httpGet: {path: /-/ready, port: 9090}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /-/healthy, port: 9090}
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: logistics
+spec:
+  selector: {app: prometheus}
+  ports: [{port: 9090, targetPort: 9090}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-provisioning
+  namespace: logistics
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        uid: prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+        editable: false
+  provider.yaml: |
+    apiVersion: 1
+    providers:
+      - name: Logistics
+        orgId: 1
+        folder: Logistics
+        type: file
+        disableDeletion: true
+        updateIntervalSeconds: 10
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: logistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: grafana}
+  template:
+    metadata:
+      labels: {app: grafana}
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:12.1.1
+          ports: [{containerPort: 3000}]
+          env:
+            - {name: GF_SECURITY_ADMIN_USER, value: admin}
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom: {secretKeyRef: {name: logistics-secrets, key: GRAFANA_ADMIN_PASSWORD}}
+          volumeMounts:
+            - {name: datasources, mountPath: /etc/grafana/provisioning/datasources, readOnly: true}
+            - {name: dashboard-provider, mountPath: /etc/grafana/provisioning/dashboards, readOnly: true}
+            - {name: dashboards, mountPath: /var/lib/grafana/dashboards, readOnly: true}
+          startupProbe:
+            httpGet: {path: /api/health, port: 3000}
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: /api/health, port: 3000}
+            timeoutSeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /api/health, port: 3000}
+            timeoutSeconds: 5
+            periodSeconds: 20
+            failureThreshold: 6
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 384Mi}
+      volumes:
+        - name: datasources
+          configMap:
+            name: grafana-provisioning
+            items:
+              - {key: prometheus.yaml, path: prometheus.yaml}
+        - name: dashboard-provider
+          configMap:
+            name: grafana-provisioning
+            items:
+              - {key: provider.yaml, path: provider.yaml}
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+            items:
+              - {key: logistics-overview.json, path: logistics-overview.json}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: logistics
+spec:
+  selector: {app: grafana}
+  ports: [{port: 3000, targetPort: 3000}]

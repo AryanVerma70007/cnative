@@ -1,0 +1,4 @@
+com\logistics\gateway\ApiGatewayApplication.class
+com\logistics\gateway\JwtTokenService.class
+com\logistics\gateway\GatewaySecurityConfig.class
+com\logistics\gateway\JwtGatewayFilter.class

@@ -1,0 +1,12 @@
+com\logistics\shipment\ShipmentSimulator.class
+com\logistics\shipment\ShipmentServiceApplication.class
+com\logistics\shipment\SecurityConfig.class
+com\logistics\shipment\Tracking.class
+com\logistics\shipment\JwtTokenService.class
+com\logistics\shipment\Shipment.class
+com\logistics\shipment\JwtAuthenticationFilter.class
+com\logistics\shipment\ShipmentState.class
+com\logistics\shipment\ShipmentController.class
+com\logistics\shipment\ShipmentRepository.class
+com\logistics\shipment\InventoryReservedConsumer.class
+com\logistics\shipment\ShipmentStateRepository.class

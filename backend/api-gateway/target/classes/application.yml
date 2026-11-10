@@ -1,0 +1,28 @@
+spring:
+  application.name: api-gateway
+  cloud.gateway:
+    routes:
+      - id: orders
+        uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+        predicates: [Path=/api/orders/**]
+      - id: auth
+        uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+        predicates: [Path=/api/auth/**]
+      - id: inventory
+        uri: ${INVENTORY_SERVICE_URL:http://localhost:8083}
+        predicates: [Path=/api/inventory/**]
+      - id: shipments
+        uri: ${SHIPMENT_SERVICE_URL:http://localhost:8084}
+        predicates: [Path=/api/shipments/**]
+      - id: dashboard
+        uri: ${ORDER_SERVICE_URL:http://localhost:8082}
+        predicates: [Path=/api/dashboard/**]
+      - id: notifications
+        uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+        predicates: [Path=/api/notifications/**]
+management.endpoints.web.exposure.include: health,info,prometheus
+management.metrics.distribution.percentiles-histogram.http.server.requests: true
+server.port: ${PORT:8080}
+app.jwt.secret: ${JWT_SECRET:change-this-development-secret-32-chars-minimum}
+app.jwt.issuer: ${JWT_ISSUER:logistics-platform}
+app.jwt.audience: ${JWT_AUDIENCE:logistics-api}

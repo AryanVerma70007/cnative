@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: logistics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: cnative-api-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JWT_SECRET
+              valueFrom: {secretKeyRef: {name: logistics-secrets, key: JWT_SECRET}}
+            - name: JWT_ISSUER
+              valueFrom: {secretKeyRef: {name: logistics-secrets, key: JWT_ISSUER}}
+            - name: JWT_AUDIENCE
+              valueFrom: {secretKeyRef: {name: logistics-secrets, key: JWT_AUDIENCE}}
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xms128m -Xmx384m"
+            - name: PORT
+              value: "8080"
+            - name: ORDER_SERVICE_URL
+              value: http://order-service:8082
+            - name: INVENTORY_SERVICE_URL
+              value: http://inventory-service:8083
+            - name: SHIPMENT_SERVICE_URL
+              value: http://shipment-service:8084
+            - name: NOTIFICATION_SERVICE_URL
+              value: http://notification-service:8085
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: logistics
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,16 @@
+{
+  "name": "cloud-logistics-platform",
+  "private": true,
+  "scripts": {
+    "dev": "node backend/api-gateway/server.js",
+    "start": "node backend/api-gateway/server.js",
+    "test": "node --test",
+    "build": "npm run build --workspace frontend"
+  },
+  "workspaces": [
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

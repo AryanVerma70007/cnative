@@ -1,0 +1,15 @@
+com\logistics\order\IdempotencyRepository.class
+com\logistics\order\OutboxPublisher.class
+com\logistics\order\SecurityConfig.class
+com\logistics\order\JwtTokenService.class
+com\logistics\order\InventoryResultConsumer.class
+com\logistics\order\OrderController$Create.class
+com\logistics\order\OrderController.class
+com\logistics\order\OrderRepository.class
+com\logistics\order\OutboxEvent.class
+com\logistics\order\OrderServiceApplication.class
+com\logistics\order\JwtAuthenticationFilter.class
+com\logistics\order\IdempotencyKey.class
+com\logistics\order\InventoryResultConsumer$ShipmentDeliveredConsumer.class
+com\logistics\order\OutboxRepository.class
+com\logistics\order\OrderRecord.class

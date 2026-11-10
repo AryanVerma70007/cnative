@@ -1,0 +1,26 @@
+.stock-input {
+  width: 90px;
+  padding: 7px;
+  border: 1px solid #cad5dd;
+  border-radius: 3px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.shipment-row > button {
+  justify-self: start;
+}
+
+.created,
+.picked_up {
+  background: #e9eef2;
+  color: #4e6170;
+}
+
+.out_for_delivery {
+  background: #fff2d6;
+  color: #91671d;
+}
